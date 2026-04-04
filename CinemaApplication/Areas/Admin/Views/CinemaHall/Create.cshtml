@@ -1,0 +1,21 @@
+﻿@model CinemaHall
+
+<form action="Create" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">Cinema Hall Name</label>
+        <input type="text" class="form-control" placeholder="Enter Cinema Hall name" asp-for="Name">
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Cinema Hall Image</label>
+            <input type="file" class="form-control" asp-for="Image">
+            </div>
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">Cinema Hall Location</label>
+                <input type="text" class="form-control" placeholder="Enter Cinema Hall location" asp-for="Location">
+                </div>
+  
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a href="~/Admin/CinemaHall/Index" class="btn btn-secondary">Back to List</a>
+            </form>
+
+            

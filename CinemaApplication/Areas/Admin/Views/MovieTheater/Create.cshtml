@@ -1,0 +1,48 @@
+﻿@model AssignTheaterVM
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Assign Cinemas to Movie</h3>
+        </div>
+        <div class="card-body">
+
+            <form asp-action="Create" method="post">
+                <input type="hidden" asp-for="MovieId" />
+                <div class="row">
+                    <h5 class="mb-3">Select Cinemas:</h5>
+                    @foreach (var theater in Model.CinemaHalls)
+                    {
+                        <div class="col-md-4 mb-2">
+                            <div class="form-check p-2 border rounded">
+                                <input class="form-check-input ms-1"
+                                       type="checkbox"
+                                       name="SelectedCinemaHallIds"
+                                       value="@theater.Id"
+                                       id="theater_@theater.Id" />
+                                <label class="form-check-label ms-4" for="theater_@theater.Id">
+                                    @theater.Name
+                                </label>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="mb-3 mt-3">
+                    <label class="form-label">Show Time</label>
+                    <input type="datetime-local" class="form-control" asp-for="Showtime" />
+                </div>
+
+                <hr />
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-success px-4">Save Changes</button>
+                    <a asp-action="Index"
+                       asp-controller="MovieTheater"
+                       asp-area="Admin"
+                       class="btn btn-outline-secondary px-4">Cancel</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,42 @@
+﻿@model AssignTheaterVM
+
+<div class="container mt-5">
+    <div class="card shadow-sm border-warning">
+        <div class="card-header bg-warning text-dark">
+            <h3 class="mb-0"><i class="bi bi-pencil-square"></i> Update Movie Cast</h3>
+        </div>
+        <div class="card-body">
+              
+               
+            <form asp-action="Update" asp-controller="MovieTheater" asp-area="Admin" asp-route-id="@Model.MovieId" method="post">
+                <div class="row">
+                    <h5 class="mb-3">Edit Selected Theaters:</h5>
+                    @foreach (var theater in Model.CinemaHalls)
+                    {
+                        <div class="col-md-4 mb-2">
+                            <div class="form-check p-2 border rounded">
+                                <input class="form-check-input ms-1" type="checkbox"
+                                       name="SelectedCinemaHallIds"
+                                       value="@theater.Id"
+                                       id="theater_@theater.Id"
+                                @(Model.SelectedCinemaHallIds != null && Model.SelectedCinemaHallIds.Contains(theater.Id) ? "checked" : "")>
+                                <label class="form-check-label ms-4" for="theater_@theater.Id">
+                                    @theater.Name
+                                </label>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="mb-3 mt-3">
+                    <label class="form-label">Show Time</label>
+                    <input type="datetime-local" class="form-control" asp-for="Showtime" value="@Model.Showtime.ToString("yyyy-MM-ddTHH:mm")" />
+                </div>
+                <hr />
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-warning px-4">Update Theater</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

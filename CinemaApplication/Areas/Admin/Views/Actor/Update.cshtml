@@ -1,0 +1,23 @@
+﻿@model Actor
+
+<form action="~/Admin/Actor/Update/@Model.Id" method="post" enctype="multipart/form-data">
+    <div>
+        <label for="exampleFormControlInput1" class="form-label">Actor Image</label>
+        
+        <img src="~/images/Admin/Actor/@Model.Image" alt="Actor Image" class="form-control img-thumbnail" style="max-width: 200px;">
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Actor Name</label>
+            <input type="text" class="form-control" name="Name" value="@Model.Name">
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Actor Image</label>
+            <input type="file" class="form-control" name="Image" value="@Model.Image">
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Actor Nationality</label>
+            <input type="text" class="form-control" name="Nationality" value="@Model.Nationality">
+        </div>
+        <button type="submit" class="btn btn-warning">Update</button>
+        <a href="~/Admin/Movie/Index" class="btn btn-secondary">Cancel</a>
+    </form>

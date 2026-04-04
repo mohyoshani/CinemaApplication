@@ -1,0 +1,47 @@
+﻿@model Movie
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="main-image-container mb-3 shadow-sm rounded overflow-hidden">
+                <img src="~/Images/Admin/Movie/@Model.Mainimage" class="img-fluid w-100" id="mainImage" alt="@Model.Title">
+            </div>
+
+            <div class="row g-2">
+                @if (Model.MovieImages != null)
+                {
+                    @foreach (var img in Model.MovieImages)
+                    {
+                        <div class="col-3">
+                                <img src="~/Images/Admin/Movie/Subimages/@img.ImageUrl" class="img-thumbnail sub-image"
+                                 style="cursor:pointer; height:80px; object-fit:cover;"
+                                 onclick="changeImage(this.src)">
+                        </div>
+
+                    }
+                }
+            </div>
+        </div>
+
+
+        <div class="col-md-6">
+            <h1 class="display-4">@Model.Title</h1>
+            <p class="badge bg-primary fs-6">@Model.Category?.Name</p>
+            <hr />
+            <p class="lead">@Model.Description</p>
+            
+            <div class="mt-4">
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+       
+        function changeImage(src) {
+            document.getElementById('mainImage').src = src;
+        }
+    </script>
+}
