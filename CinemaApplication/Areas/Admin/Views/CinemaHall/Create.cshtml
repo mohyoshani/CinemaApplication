@@ -4,6 +4,7 @@
     <div class="mb-3">
         <label for="exampleFormControlInput1" class="form-label">Cinema Hall Name</label>
         <input type="text" class="form-control" placeholder="Enter Cinema Hall name" asp-for="Name">
+         <span asp-validation-for="Name" class="text-danger"></span>
         </div>
         <div class="mb-3">
             <label for="exampleFormControlInput1" class="form-label">Cinema Hall Image</label>
@@ -12,6 +13,7 @@
             <div class="mb-3">
                 <label for="exampleFormControlInput1" class="form-label">Cinema Hall Location</label>
                 <input type="text" class="form-control" placeholder="Enter Cinema Hall location" asp-for="Location">
+                    <span asp-validation-for="Location" class="text-danger"></span>
                 </div>
   
                 <button type="submit" class="btn btn-primary">Submit</button>

@@ -3,6 +3,7 @@
     public class MovieTheater
     {
         public int Id { get; set; }
+        [Required]
         public DateTime Showtime { get; set; }
         public int CinemaHallId { get; set; }
         public int MovieId { get; set; }

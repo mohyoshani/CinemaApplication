@@ -43,25 +43,36 @@ namespace CinemaApplication.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Create(AssignCastVM vm)
         {
-            if (vm.SelectedActorsIds != null && vm.SelectedActorsIds.Any())
-            {
-                foreach (var actorId in vm.SelectedActorsIds)
-                {
-                    var movieActor = new MovieActor
-                    {
-                        MovieId = vm.MovieId,
-                        ActorId = actorId
-                    };
-                    _context.MovieActors.Add(movieActor);
-                }
-                _context.SaveChanges();
-                TempData["success"] = "Cast Created Successfully";
-                return RedirectToAction(nameof(Index));
-            }
-            vm.Actors = _context.Actors.ToList();
 
+         
+
+                if (vm.SelectedActorsIds != null && vm.SelectedActorsIds.Any())
+                {
+                    var movieActorsList = new List<MovieActor>();
+
+                    foreach (var actorId in vm.SelectedActorsIds)
+                    {
+                        movieActorsList.Add(new MovieActor
+                        {
+                            MovieId = vm.MovieId,
+                            ActorId = actorId
+                        });
+                    }
+                if (ModelState.IsValid)
+                {
+                    _context.MovieActors.AddRange(movieActorsList);
+                    _context.SaveChanges();
+
+                    TempData["success"] = "Cast Assigned Successfully";
+                    return RedirectToAction(nameof(Index));
+                }
+
+            }
+
+            vm.Actors = _context.Actors.ToList();
             return View(vm);
         }
+
 
         [HttpGet]
         public IActionResult Update(int id)
@@ -87,24 +98,30 @@ namespace CinemaApplication.Areas.Admin.Controllers
         public IActionResult Update(int id, AssignCastVM model)
         {
             model.MovieId = id;
-           
-            var Cast = _context.MovieActors.Where(ma => ma.MovieId == model.MovieId);
-            _context.MovieActors.RemoveRange(Cast);
 
-            if (model.SelectedActorsIds != null && model.SelectedActorsIds.Any())
-            {
-                foreach (var actorId in model.SelectedActorsIds)
+         
+                var Cast = _context.MovieActors.Where(ma => ma.MovieId == model.MovieId);
+                _context.MovieActors.RemoveRange(Cast);
+
+                if (model.SelectedActorsIds != null && model.SelectedActorsIds.Any())
                 {
-                    _context.MovieActors.Add(new MovieActor
+                    foreach (var actorId in model.SelectedActorsIds)
                     {
-                        MovieId = model.MovieId,
-                        ActorId = actorId
-                    });
+                        _context.MovieActors.Add(new MovieActor
+                        {
+                            MovieId = model.MovieId,
+                            ActorId = actorId
+                        });
+                    }
                 }
+            if (ModelState.IsValid)
+            {
+                TempData["info"] = "Cast Updated Successfully";
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
             }
-            TempData["info"] = "Cast Updated Successfully";
-            _context.SaveChanges();
-            return RedirectToAction(nameof(Index));
+            model.Actors = _context.Actors.ToList();
+            return View(model);
         }
 
         [HttpGet]

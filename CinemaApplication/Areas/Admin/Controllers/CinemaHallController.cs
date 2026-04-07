@@ -44,6 +44,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
                 TempData["error"] = "Please correct the errors in the form.";
                 return View(cinemaHall);
             }
+
             if (Image is not null && Image.Length > 0)
             {
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
@@ -74,6 +75,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Update(CinemaHall cinemaHall, IFormFile Image)
         {
+            if (ModelState.IsValid) { 
             var cinemaHallInDb = _context.CinemaHalls.AsNoTracking().SingleOrDefault(c => c.Id == cinemaHall.Id);
             if (cinemaHallInDb == null)
             {
@@ -98,6 +100,8 @@ namespace CinemaApplication.Areas.Admin.Controllers
             _context.SaveChanges();
             TempData["info"] = "Hall Updated Successfully";
             return RedirectToAction(nameof(Index));
+            }
+            return View(cinemaHall);
         }
 
         [HttpPost]

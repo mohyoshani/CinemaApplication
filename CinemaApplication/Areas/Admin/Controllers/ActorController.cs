@@ -48,27 +48,31 @@ namespace CinemaApplication.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Create(Actor actor, IFormFile Image)
         {
-            if (Image is not null && Image.Length > 0)
+            if (ModelState.IsValid)
             {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "Admin","Actor", fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                if (Image is not null && Image.Length > 0)
                 {
-                    Image.CopyTo(stream);
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "Admin", "Actor", fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        Image.CopyTo(stream);
+                    }
+                    actor.Image = fileName;
                 }
-                actor.Image = fileName;
+                _context.Actors.Add(actor);
+                _context.SaveChanges();
+                TempData["success"] = "Actor Created Successfully";
+                return RedirectToAction(nameof(Index));
             }
-            _context.Actors.Add(actor);
-            _context.SaveChanges();
-            TempData["success"] = "Actor Created Successfully";
-            return RedirectToAction(nameof(Index));
+            return View(actor);
         }
 
         [HttpGet]
         public IActionResult Update(int id)
         {
             var actor = _context.Actors.Find(id);
-           
+
             if (actor == null)
             {
                 return NotFound();
@@ -79,30 +83,34 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
         public IActionResult Update(Actor actor, IFormFile Image)
         {
-            var actorInDb = _context.Actors.AsNoTracking().SingleOrDefault(a => a.Id == actor.Id); 
-            if (actorInDb == null)
+            if (ModelState.IsValid)
             {
-                return NotFound();
-            }
-
-            if (Image is not null && Image.Length > 0)
-            {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "Admin","Actor", fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                var actorInDb = _context.Actors.AsNoTracking().SingleOrDefault(a => a.Id == actor.Id);
+                if (actorInDb == null)
                 {
-                    Image.CopyTo(stream);
+                    return NotFound();
                 }
-                actor.Image = fileName;
+
+                if (Image is not null && Image.Length > 0)
+                {
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "Admin", "Actor", fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        Image.CopyTo(stream);
+                    }
+                    actor.Image = fileName;
+                }
+                else
+                {
+                    actor.Image = actorInDb.Image;
+                }
+                _context.Actors.Update(actor);
+                _context.SaveChanges();
+                TempData["info"] = "Actor Updated Successfully";
+                return RedirectToAction(nameof(Index));
             }
-            else
-            {
-                actor.Image = actorInDb.Image;
-            }
-            _context.Actors.Update(actor);
-            _context.SaveChanges();
-            TempData["info"] = "Actor Updated Successfully";
-            return RedirectToAction(nameof(Index));
+            return View(actor);
         }
 
 

@@ -9,6 +9,7 @@
         <div class="mb-3">
             <label for="exampleFormControlInput1" class="form-label">CinemaHall Name</label>
             <input type="text" class="form-control" asp-for="Name" value="@Model.Name">
+             <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label for="exampleFormControlInput1" class="form-label">CinemaHall Image</label>
@@ -17,6 +18,7 @@
             <div class="mb-3">
                 <label for="exampleFormControlInput1" class="form-label">CinemaHall Location</label>
                 <input type="text" class="form-control" asp-for="Location" value="@Model.Location">
+                    <span asp-validation-for="Location" class="text-danger"></span>
                 </div>
                 <button type="submit" class="btn btn-warning">Update</button>
                 <a href="~/Admin/Movie/Index" class="btn btn-secondary">Cancel</a>

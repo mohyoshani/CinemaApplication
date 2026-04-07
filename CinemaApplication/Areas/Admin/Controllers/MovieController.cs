@@ -43,58 +43,63 @@ namespace CinemaApplication.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Create(CreateMovieVM vm, IFormFile MainImage, List<IFormFile> SubImages)
         {
-            if (vm.Movie == null) vm.Movie = new Movie();
-
-            if (MainImage is not null && MainImage.Length > 0)
+            if (ModelState.IsValid)
             {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(MainImage.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", "Admin", "Movie", fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    MainImage.CopyTo(stream);
-                }
-                vm.Movie.Mainimage = fileName;
-            }
+                if (vm.Movie == null) vm.Movie = new Movie();
 
-            _context.Movies.Add(vm.Movie);
-            _context.SaveChanges();
-            TempData["success"] = "Movie Created Successfully";
-
-            if (SubImages != null && SubImages.Count > 0)
-            {
-                foreach (var subImage in SubImages)
+                if (MainImage is not null && MainImage.Length > 0)
                 {
-                    if (subImage.Length > 0)
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(MainImage.FileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", "Admin", "Movie", fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(subImage.FileName);
-                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", "Admin", "Movie", "Subimages", fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            subImage.CopyTo(stream);
-                        }
-
-                        _context.MovieImages.Add(new MovieImage
-                        {
-                            MovieId = vm.Movie.Id,
-                            ImageUrl = fileName
-                        });
+                        MainImage.CopyTo(stream);
                     }
+                    vm.Movie.Mainimage = fileName;
                 }
+
+                _context.Movies.Add(vm.Movie);
                 _context.SaveChanges();
+                TempData["success"] = "Movie Created Successfully";
+
+                if (SubImages != null && SubImages.Count > 0)
+                {
+                    foreach (var subImage in SubImages)
+                    {
+                        if (subImage.Length > 0)
+                        {
+                            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(subImage.FileName);
+                            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", "Admin", "Movie", "Subimages", fileName);
+
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                subImage.CopyTo(stream);
+                            }
+
+                            _context.MovieImages.Add(new MovieImage
+                            {
+                                MovieId = vm.Movie.Id,
+                                ImageUrl = fileName
+                            });
+                        }
+                    }
+                    _context.SaveChanges();
+                }
+                TempData["success"] = "Movie Created Successfully!";
+                return RedirectToAction(nameof(Index));
             }
-            TempData["success"] = "Movie Created Successfully!";
-            return RedirectToAction(nameof(Index));
+            TempData["error"] = "Failed to Create Movie. Please check the input data.";
+            return View(vm);
         }
 
         [HttpGet]
         public IActionResult Update(int id)
         {
             var movie = _context.Movies.Find(id);
-            if (movie == null) 
+            if (movie == null)
                 return NotFound();
 
-         
+
             return View(new CreateMovieVM()
             {
                 Movie = movie,
@@ -104,56 +109,59 @@ namespace CinemaApplication.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Update(CreateMovieVM vm, IFormFile MainImage, List<IFormFile> SubImages)
         {
-            
-            var movieInDb = _context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == vm.Movie.Id);
-            if(movieInDb == null)
-                return NotFound();
-
-            if (MainImage is not null && MainImage.Length > 0)
+            if (ModelState.IsValid)
             {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(MainImage.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", "Admin", "Movie", fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
+
+                var movieInDb = _context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == vm.Movie.Id);
+                if (movieInDb == null)
+                    return NotFound();
+
+                if (MainImage is not null && MainImage.Length > 0)
                 {
-                    MainImage.CopyTo(stream);
-                }
-                vm.Movie.Mainimage = fileName;
-            }
-            else
-            {
-                vm.Movie.Mainimage = movieInDb.Mainimage;
-            }
-
-            _context.Movies.Update(vm.Movie);
-            _context.SaveChanges();
-           
-
-            if (SubImages != null && SubImages.Count > 0)
-            {
-                foreach (var subImage in SubImages)
-                {
-                    if (subImage.Length > 0)
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(MainImage.FileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", "Admin", "Movie", fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(subImage.FileName);
-                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", "Admin", "Movie", "Subimages", fileName);
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            subImage.CopyTo(stream);
-                        }
-
-                        _context.MovieImages.Add(new MovieImage
-                        {
-                            MovieId = vm.Movie.Id,
-                            ImageUrl = fileName
-                        });
+                        MainImage.CopyTo(stream);
                     }
-
+                    vm.Movie.Mainimage = fileName;
                 }
+                else
+                {
+                    vm.Movie.Mainimage = movieInDb.Mainimage;
+                }
+
+                _context.Movies.Update(vm.Movie);
                 _context.SaveChanges();
-                
+
+
+                if (SubImages != null && SubImages.Count > 0)
+                {
+                    foreach (var subImage in SubImages)
+                    {
+                        if (subImage.Length > 0)
+                        {
+                            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(subImage.FileName);
+                            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", "Admin", "Movie", "Subimages", fileName);
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                subImage.CopyTo(stream);
+                            }
+
+                            _context.MovieImages.Add(new MovieImage
+                            {
+                                MovieId = vm.Movie.Id,
+                                ImageUrl = fileName
+                            });
+                        }
+                    }
+                    _context.SaveChanges();
+                }
+                TempData["info"] = "Movie Updated Successfully";
+                return RedirectToAction(nameof(Index));
             }
-            TempData["info"] = "Movie Updated Successfully";
-            return RedirectToAction(nameof(Index));
+            TempData["error"] = "Failed to Update Movie. Please check the input data.";
+            return View(vm);
         }
 
         [HttpPost]

@@ -9,6 +9,7 @@
         <div class="mb-3">
             <label for="exampleFormControlInput1" class="form-label">Actor Name</label>
             <input type="text" class="form-control" name="Name" value="@Model.Name">
+            <span asp-validation-for="Name" class="text-danger"></span>
         </div>
         <div class="mb-3">
             <label for="exampleFormControlInput1" class="form-label">Actor Image</label>
@@ -17,7 +18,11 @@
         <div class="mb-3">
             <label for="exampleFormControlInput1" class="form-label">Actor Nationality</label>
             <input type="text" class="form-control" name="Nationality" value="@Model.Nationality">
+            <span asp-validation-for="Nationality" class="text-danger"></span>
         </div>
         <button type="submit" class="btn btn-warning">Update</button>
         <a href="~/Admin/Movie/Index" class="btn btn-secondary">Cancel</a>
     </form>
+
+
+   

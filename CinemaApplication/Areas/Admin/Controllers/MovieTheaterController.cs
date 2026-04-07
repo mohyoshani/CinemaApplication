@@ -37,13 +37,15 @@ namespace CinemaApplication.Areas.Admin.Controllers
                 Showtime = DateTime.Now
             });
         }
-
         [HttpPost]
         public IActionResult Create(AssignTheaterVM vm)
         {
 
             if (vm.SelectedCinemaHallIds != null && vm.SelectedCinemaHallIds.Any())
             {
+
+                var movieTheatersList = new List<MovieTheater>();
+
                 foreach (var hallId in vm.SelectedCinemaHallIds)
                 {
                     var movieTheater = new MovieTheater
@@ -53,13 +55,17 @@ namespace CinemaApplication.Areas.Admin.Controllers
                         Showtime = vm.Showtime
                     };
 
-                    _context.MovieTheaters.Add(movieTheater);
+                    movieTheatersList.Add(movieTheater);
                 }
-                
+                _context.MovieTheaters.AddRange(movieTheatersList);
+            }
+            if (ModelState.IsValid)
+            {
                 _context.SaveChanges();
                 TempData["success"] = "Theater Created Successfully";
                 return RedirectToAction(nameof(Index));
             }
+
             vm.CinemaHalls = _context.CinemaHalls.ToList();
             return View(vm);
         }
@@ -105,10 +111,15 @@ namespace CinemaApplication.Areas.Admin.Controllers
                     });
                 }
             }
-            
-            _context.SaveChanges();
-            TempData["info"] = "Theater Updated Successfully";
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+
+                TempData["info"] = "Theater Updated Successfully";
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+            vm.CinemaHalls = _context.CinemaHalls.ToList();
+            return View(vm);
         }
 
         [HttpGet]

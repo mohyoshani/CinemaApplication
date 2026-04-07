@@ -38,15 +38,14 @@
         [HttpPost]
         public IActionResult Create(Category category)
         {
-            if (category == null)
+            if (ModelState.IsValid)
             {
-                return View();
+                _context.Categories.Add(category);
+                _context.SaveChanges();
+                TempData["success"] = "Category Created Successfully";
+                return RedirectToAction(nameof(Index));
             }
-
-            _context.Categories.Add(category);
-            _context.SaveChanges();
-            TempData["success"] = "Category Created Successfully";
-            return RedirectToAction(nameof(Index));
+            return View(category);
         }
 
         [HttpGet]
@@ -65,18 +64,14 @@
         public IActionResult Update(Category category)
         {
             var categoryInDb = _context.Categories.AsNoTracking().SingleOrDefault(c => c.Id == category.Id);
-            if (categoryInDb == null)
+            if (ModelState.IsValid)
             {
-                return NotFound();
+                _context.Categories.Update(category);
+                _context.SaveChanges();
+                TempData["info"] = "Category Updated Successfully";
+                return RedirectToAction(nameof(Index));
             }
-            if (category == null)
-            {
-                return View();
-            }
-            _context.Categories.Update(category);
-            _context.SaveChanges();
-            TempData["info"] = "Category Updated Successfully";
-            return RedirectToAction(nameof(Index));
+            return View(category);
         }
 
         [HttpPost]

@@ -5,3 +5,5 @@ global using Microsoft.AspNetCore.Mvc;
 global using CinemaApplication.Utility;
 global using System.IO; 
 global using CinemaApplication.ViewModels;
+global using System.ComponentModel.DataAnnotations;
+global using CinemaApplication.Validations;
