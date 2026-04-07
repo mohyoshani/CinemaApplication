@@ -89,6 +89,10 @@ namespace CinemaApplication.Areas.Admin.Controllers
                 }
                 cinemaHall.Image = fileName;
             }
+            else
+            {
+                cinemaHall.Image = cinemaHallInDb.Image;
+            }
 
             _context.CinemaHalls.Update(cinemaHall);
             _context.SaveChanges();

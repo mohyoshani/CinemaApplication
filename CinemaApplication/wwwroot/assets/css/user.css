@@ -3,3 +3,23 @@
 /* -------------------------------------------------------------------------- */
 /* prettier-ignore */
 /*# sourceMappingURL=user.css.map */
+
+#toast-container > .toast {
+    opacity: 1 !important;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2) !important;
+}
+
+
+.toast-success {
+    background-color: #00d27a !important; 
+}
+
+.toast-info {
+    background-color: #f5803e !important; 
+}
+
+
+.toast-error {
+    background-color: #e63757 !important; 
+}
+

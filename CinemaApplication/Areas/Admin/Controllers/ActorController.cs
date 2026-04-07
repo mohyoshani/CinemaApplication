@@ -95,6 +95,10 @@ namespace CinemaApplication.Areas.Admin.Controllers
                 }
                 actor.Image = fileName;
             }
+            else
+            {
+                actor.Image = actorInDb.Image;
+            }
             _context.Actors.Update(actor);
             _context.SaveChanges();
             TempData["info"] = "Actor Updated Successfully";

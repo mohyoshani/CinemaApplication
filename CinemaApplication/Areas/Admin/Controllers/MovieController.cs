@@ -126,7 +126,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
             _context.Movies.Update(vm.Movie);
             _context.SaveChanges();
-            TempData["info"] = "Movie Updated Successfully";
+           
 
             if (SubImages != null && SubImages.Count > 0)
             {
@@ -147,6 +147,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
                             ImageUrl = fileName
                         });
                     }
+
                 }
                 _context.SaveChanges();
                 
