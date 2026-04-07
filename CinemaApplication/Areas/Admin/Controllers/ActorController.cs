@@ -60,6 +60,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
             }
             _context.Actors.Add(actor);
             _context.SaveChanges();
+            TempData["success"] = "Actor Created Successfully";
             return RedirectToAction(nameof(Index));
         }
 
@@ -78,7 +79,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
         public IActionResult Update(Actor actor, IFormFile Image)
         {
-            var actorInDb = _context.Actors.SingleOrDefault(a => a.Id == actor.Id); 
+            var actorInDb = _context.Actors.AsNoTracking().SingleOrDefault(a => a.Id == actor.Id); 
             if (actorInDb == null)
             {
                 return NotFound();
@@ -96,6 +97,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
             }
             _context.Actors.Update(actor);
             _context.SaveChanges();
+            TempData["info"] = "Actor Updated Successfully";
             return RedirectToAction(nameof(Index));
         }
 
@@ -110,6 +112,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
             }
             _context.Actors.Remove(actor);
             _context.SaveChanges();
+            TempData["error"] = "Actor Deleted Successfully";
             return RedirectToAction(nameof(Index));
         }
     }

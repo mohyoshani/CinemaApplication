@@ -45,6 +45,7 @@
 
             _context.Categories.Add(category);
             _context.SaveChanges();
+            TempData["success"] = "Category Created Successfully";
             return RedirectToAction(nameof(Index));
         }
 
@@ -63,7 +64,7 @@
         [HttpPost]
         public IActionResult Update(Category category)
         {
-            var categoryInDb = _context.Categories.SingleOrDefault(c => c.Id == category.Id);
+            var categoryInDb = _context.Categories.AsNoTracking().SingleOrDefault(c => c.Id == category.Id);
             if (categoryInDb == null)
             {
                 return NotFound();
@@ -74,6 +75,7 @@
             }
             _context.Categories.Update(category);
             _context.SaveChanges();
+            TempData["info"] = "Category Updated Successfully";
             return RedirectToAction(nameof(Index));
         }
 
@@ -87,6 +89,7 @@
             }
             _context.Categories.Remove(category);
             _context.SaveChanges();
+            TempData["error"] = "Category Deleted Successfully";
             return RedirectToAction(nameof(Index));
         }
     }

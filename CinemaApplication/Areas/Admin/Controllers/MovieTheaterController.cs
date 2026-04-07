@@ -55,7 +55,9 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
                     _context.MovieTheaters.Add(movieTheater);
                 }
+                
                 _context.SaveChanges();
+                TempData["success"] = "Theater Created Successfully";
                 return RedirectToAction(nameof(Index));
             }
             vm.CinemaHalls = _context.CinemaHalls.ToList();
@@ -88,29 +90,24 @@ namespace CinemaApplication.Areas.Admin.Controllers
         {
             vm.MovieId = id;
 
-            var theaterInDb = _context.MovieTheaters.SingleOrDefault(mt => mt.MovieId == vm.MovieId);
-            if (theaterInDb == null)
-            {
-                return NotFound();
-            }
-
-            var movieTheaters = _context.MovieTheaters.Where(mt => mt.MovieId == vm .MovieId);
+            var movieTheaters = _context.MovieTheaters.Where(mt => mt.MovieId == vm.MovieId);
             _context.MovieTheaters.RemoveRange(movieTheaters);
             if (vm.SelectedCinemaHallIds != null && vm.SelectedCinemaHallIds.Any())
             {
                 foreach (var hallId in vm.SelectedCinemaHallIds)
                 {
-                    _context.MovieTheaters.Add(new MovieTheater     
+                    _context.MovieTheaters.Add(new MovieTheater
                     {
                         MovieId = vm.MovieId,
                         CinemaHallId = hallId,
                         Showtime = vm.Showtime
-                        
+
                     });
                 }
             }
-
+            
             _context.SaveChanges();
+            TempData["info"] = "Theater Updated Successfully";
             return RedirectToAction(nameof(Index));
         }
 
@@ -143,6 +140,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
                 _context.MovieTheaters.RemoveRange(movieTheaters);
                 _context.SaveChanges();
             }
+            TempData["error"] = "Theater Deleted Successfully";
             return RedirectToAction(nameof(Index));
         }
 

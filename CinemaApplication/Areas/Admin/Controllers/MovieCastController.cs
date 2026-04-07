@@ -55,9 +55,11 @@ namespace CinemaApplication.Areas.Admin.Controllers
                     _context.MovieActors.Add(movieActor);
                 }
                 _context.SaveChanges();
+                TempData["success"] = "Cast Created Successfully";
                 return RedirectToAction(nameof(Index));
             }
             vm.Actors = _context.Actors.ToList();
+
             return View(vm);
         }
 
@@ -85,11 +87,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
         public IActionResult Update(int id, AssignCastVM model)
         {
             model.MovieId = id;
-            var castInDb = _context.MovieActors.SingleOrDefault(ma => ma.MovieId == model.MovieId);
-            if (castInDb == null)
-            {
-                return NotFound();
-            }
+           
             var Cast = _context.MovieActors.Where(ma => ma.MovieId == model.MovieId);
             _context.MovieActors.RemoveRange(Cast);
 
@@ -104,7 +102,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
                     });
                 }
             }
-
+            TempData["info"] = "Cast Updated Successfully";
             _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
@@ -138,6 +136,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
                 _context.MovieActors.RemoveRange(movieCast);
                 _context.SaveChanges();
             }
+            TempData["error"] = "Cast Deleted Successfully";
             return RedirectToAction(nameof(Index));
         }
     }

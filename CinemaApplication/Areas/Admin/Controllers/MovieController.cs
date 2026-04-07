@@ -57,7 +57,8 @@ namespace CinemaApplication.Areas.Admin.Controllers
             }
 
             _context.Movies.Add(vm.Movie);
-            _context.SaveChanges(); 
+            _context.SaveChanges();
+            TempData["success"] = "Movie Created Successfully";
 
             if (SubImages != null && SubImages.Count > 0)
             {
@@ -104,7 +105,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
         public IActionResult Update(CreateMovieVM vm, IFormFile MainImage, List<IFormFile> SubImages)
         {
             
-            var movieInDb = _context.Movies.AsNoTracking().FirstOrDefault(m => m.Id == vm.Movie.Id);
+            var movieInDb = _context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == vm.Movie.Id);
             if(movieInDb == null)
                 return NotFound();
 
@@ -125,8 +126,8 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
             _context.Movies.Update(vm.Movie);
             _context.SaveChanges();
+            TempData["info"] = "Movie Updated Successfully";
 
-          
             if (SubImages != null && SubImages.Count > 0)
             {
                 foreach (var subImage in SubImages)
@@ -148,8 +149,9 @@ namespace CinemaApplication.Areas.Admin.Controllers
                     }
                 }
                 _context.SaveChanges();
+                
             }
-            TempData["success"] = "Movie Updated Successfully!";
+            TempData["info"] = "Movie Updated Successfully";
             return RedirectToAction(nameof(Index));
         }
 
@@ -164,7 +166,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
             }
             _context.Movies.Remove(movie);
             _context.SaveChanges();
-            TempData["success"] = "Movie deleted Successfully!";
+            TempData["error"] = "Movie Deleted Successfully";
             return RedirectToAction(nameof(Index));
         }
 

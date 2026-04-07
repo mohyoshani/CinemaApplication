@@ -57,7 +57,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
             _context.CinemaHalls.Add(cinemaHall);
             _context.SaveChanges();
-            //TempData["success"] = "Cinema Hall created successfully";
+            TempData["success"] = "Hall Created Successfully";
             return RedirectToAction(nameof(Index));
         }
 
@@ -74,7 +74,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Update(CinemaHall cinemaHall, IFormFile Image)
         {
-            var cinemaHallInDb = _context.CinemaHalls.SingleOrDefault(c => c.Id == cinemaHall.Id);
+            var cinemaHallInDb = _context.CinemaHalls.AsNoTracking().SingleOrDefault(c => c.Id == cinemaHall.Id);
             if (cinemaHallInDb == null)
             {
                 return NotFound();
@@ -92,6 +92,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
             _context.CinemaHalls.Update(cinemaHall);
             _context.SaveChanges();
+            TempData["info"] = "Hall Updated Successfully";
             return RedirectToAction(nameof(Index));
         }
 
@@ -103,6 +104,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
                 return NotFound();
             _context.CinemaHalls.Remove(cinemaHall);
             _context.SaveChanges();
+            TempData["error"] = "Hall Deleted Successfully";
             return RedirectToAction(nameof(Index));
         }
     }
