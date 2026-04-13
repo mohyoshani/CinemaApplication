@@ -9,12 +9,14 @@ namespace CinemaApplication.Models
 
         [Required]
         [MaxLength(150)]
-        [StringValidationAttribute]
+        [StringValidation]
         public string Name { get; set; }
 
         public string? Image { get; set; }
+
         [Required]
-        public string? Nationality { get; set; }
+        [StringValidation]
+        public string Nationality { get; set; }
 
         public ICollection<MovieActor>? MovieActors { get; set; }
 

@@ -168,7 +168,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int id)
         {
 
-            //var movieCast = _context.MovieActors.Where(ma => ma.MovieId == id).ToList();
+     
             var movieCast = await _repositoryMovieActor.GetAllAsync(expression: ma => ma.MovieId == id, tracked: false);
 
             if (movieCast.Any())

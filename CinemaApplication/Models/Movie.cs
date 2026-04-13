@@ -5,24 +5,28 @@ namespace CinemaApplication.Models
     {
         public int Id { get; set; }
         [Required]
-        [StringValidationAttribute]
+        [StringValidation]
         
-        public string? Title { get; set; }
+        public string Title { get; set; }
         [Required]
-        public string? Description { get; set; }
+        public string Description { get; set; }
+        
         [Required]
         [Range(1 , 500)]
-        public decimal? Price { get; set; }
+        public decimal Price { get; set; }
+        
         public string? Mainimage { get; set; }
+        
         [Required]
         public bool status { get; set; }
+        
         [Required]
-        public DateTime? ReleaseDate { get; set; }
+        public DateTime ReleaseDate { get; set; }
         [Required]
         public int CategoryId { get; set; }
         [Required]
         public int Duration { get; set; }
-        public Category Category { get; set; }
+        public Category? Category { get; set; }
         public ICollection<MovieActor>? MovieActors { get; set; }
         public ICollection<MovieTheater>? MovieTheaters { get; set; }
         public ICollection<MovieImage>? MovieImages { get; set; }

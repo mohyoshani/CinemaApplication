@@ -14,6 +14,7 @@ namespace CinemaApplication
             builder.Services.AddScoped<IRepository<Movie>, Repository<Movie>>();
             builder.Services.AddScoped<IRepository<MovieActor>, Repository<MovieActor>>();
             builder.Services.AddScoped<IRepository<MovieTheater>, Repository<MovieTheater>>();
+            builder.Services.AddScoped<IHomeCountersRepository,HomeCountersRepository>();
 
             string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
               throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
