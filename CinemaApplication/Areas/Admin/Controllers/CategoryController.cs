@@ -3,11 +3,15 @@
     [Area(nameof(SD.Admin))]
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _context = new();
-        public IActionResult Index(int page = 1, string? query = null)
+        private readonly IRepository<Category> _repositoryCategory;
+        public CategoryController(IRepository<Category> repositoryCategory)
+        {
+            _repositoryCategory = repositoryCategory;
+        }
+        public async Task<IActionResult> Index(int page = 1, string? query = null , CancellationToken cancellationToken = default)
         {
 
-            var categories = _context.Categories.AsNoTracking().AsQueryable();
+            var categories = await _repositoryCategory.GetAllAsync(cancellationToken:cancellationToken , tracked: false);
 
             if (query is not null)
             {
@@ -36,12 +40,12 @@
             return View();
         }
         [HttpPost]
-        public IActionResult Create(Category category)
+        public async Task<IActionResult> Create(Category category , CancellationToken cancellationToken = default)
         {
             if (ModelState.IsValid)
             {
-                _context.Categories.Add(category);
-                _context.SaveChanges();
+                await _repositoryCategory.CreateAsync(category, cancellationToken);
+                await _repositoryCategory.SaveChangesAsync(cancellationToken);
                 TempData["success"] = "Category Created Successfully";
                 return RedirectToAction(nameof(Index));
             }
@@ -49,9 +53,9 @@
         }
 
         [HttpGet]
-        public IActionResult Update(int id)
+        public async Task<IActionResult> Update(int id, CancellationToken cancellationToken = default)
         {
-            var category = _context.Categories.Find(id);
+            var category = await _repositoryCategory.GetOneAsync(c => c.Id == id, cancellationToken);
             if (category == null)
             {
                 return NotFound();
@@ -61,13 +65,13 @@
         }
 
         [HttpPost]
-        public IActionResult Update(Category category)
+        public async Task<IActionResult> Update(Category category, CancellationToken cancellationToken = default)
         {
-            var categoryInDb = _context.Categories.AsNoTracking().SingleOrDefault(c => c.Id == category.Id);
+            var categoryInDb = await _repositoryCategory.GetOneAsync(c => c.Id == category.Id, cancellationToken);
             if (ModelState.IsValid)
             {
-                _context.Categories.Update(category);
-                _context.SaveChanges();
+               _repositoryCategory.Update(category);
+                await _repositoryCategory.SaveChangesAsync(cancellationToken);
                 TempData["info"] = "Category Updated Successfully";
                 return RedirectToAction(nameof(Index));
             }
@@ -75,15 +79,16 @@
         }
 
         [HttpPost]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id , CancellationToken cancellationToken = default)
         {
-            var category = _context.Categories.Find(id);
+            var category = await _repositoryCategory.GetOneAsync(c => c.Id == id, cancellationToken);
+           
             if (category == null)
             {
                 return NotFound();
             }
-            _context.Categories.Remove(category);
-            _context.SaveChanges();
+            _repositoryCategory.Delete(category);
+            await _repositoryCategory.SaveChangesAsync(cancellationToken);
             TempData["error"] = "Category Deleted Successfully";
             return RedirectToAction(nameof(Index));
         }

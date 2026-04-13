@@ -8,9 +8,22 @@ namespace CinemaApplication
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddScoped<IRepository<Actor>, Repository<Actor>>();
+            builder.Services.AddScoped<IRepository<Category>, Repository<Category>>();
+            builder.Services.AddScoped<IRepository<CinemaHall>, Repository<CinemaHall>>();
+            builder.Services.AddScoped<IRepository<Movie>, Repository<Movie>>();
+            builder.Services.AddScoped<IRepository<MovieActor>, Repository<MovieActor>>();
+            builder.Services.AddScoped<IRepository<MovieTheater>, Repository<MovieTheater>>();
+
+            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+              throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(connectionString);
+            });
+
 
             var app = builder.Build();
-
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {

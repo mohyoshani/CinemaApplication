@@ -5,10 +5,14 @@ namespace CinemaApplication.Areas.Admin.Controllers
     [Area(nameof(SD.Admin))]
     public class CinemaHallController : Controller
     {
-        private readonly ApplicationDbContext _context = new();
-        public IActionResult Index(int page = 1, string? query = null)
+        private readonly IRepository<CinemaHall> _repositoryCinemaHall;
+        public CinemaHallController(IRepository<CinemaHall> repositoryCinemaHall)
         {
-            var cinemaHall = _context.CinemaHalls.AsQueryable();
+            _repositoryCinemaHall = repositoryCinemaHall;
+        }
+        public async Task<IActionResult> Index(int page = 1, string? query = null , CancellationToken cancellationToken = default)
+        {
+            var cinemaHall = await _repositoryCinemaHall.GetAllAsync(cancellationToken:cancellationToken , tracked: false);
 
             //Search
             if (query is not null)
@@ -37,7 +41,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(CinemaHall cinemaHall, IFormFile Image)
+        public async Task<IActionResult> Create(CinemaHall cinemaHall, IFormFile Image , CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
@@ -56,27 +60,29 @@ namespace CinemaApplication.Areas.Admin.Controllers
                 cinemaHall.Image = fileName;
             }
 
-            _context.CinemaHalls.Add(cinemaHall);
-            _context.SaveChanges();
+            await _repositoryCinemaHall.CreateAsync(cinemaHall, cancellationToken);
+            await _repositoryCinemaHall.SaveChangesAsync(cancellationToken);
+            
             TempData["success"] = "Hall Created Successfully";
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Update(int id)
+        public async Task<IActionResult> Update(int id, CancellationToken cancellationToken = default)
         {
            
-            var cinemaHall = _context.CinemaHalls.Find(id);
+            var cinemaHall = await _repositoryCinemaHall.GetOneAsync(c => c.Id == id, cancellationToken);
             if (cinemaHall is null)
                 return NotFound();
             return View(cinemaHall);
         }
 
         [HttpPost]
-        public IActionResult Update(CinemaHall cinemaHall, IFormFile Image)
+        public async Task<IActionResult> Update(CinemaHall cinemaHall, IFormFile Image, CancellationToken cancellationToken = default)
         {
-            if (ModelState.IsValid) { 
-            var cinemaHallInDb = _context.CinemaHalls.AsNoTracking().SingleOrDefault(c => c.Id == cinemaHall.Id);
+            if (ModelState.IsValid) 
+            { 
+            var cinemaHallInDb = await _repositoryCinemaHall.GetOneAsync(c => c.Id == cinemaHall.Id, cancellationToken);
             if (cinemaHallInDb == null)
             {
                 return NotFound();
@@ -96,8 +102,8 @@ namespace CinemaApplication.Areas.Admin.Controllers
                 cinemaHall.Image = cinemaHallInDb.Image;
             }
 
-            _context.CinemaHalls.Update(cinemaHall);
-            _context.SaveChanges();
+            _repositoryCinemaHall.Update(cinemaHall);
+            await _repositoryCinemaHall.SaveChangesAsync(cancellationToken);
             TempData["info"] = "Hall Updated Successfully";
             return RedirectToAction(nameof(Index));
             }
@@ -105,13 +111,13 @@ namespace CinemaApplication.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken = default)
         {
-            var cinemaHall = _context.CinemaHalls.Find(id);
+            var cinemaHall = await _repositoryCinemaHall.GetOneAsync(ch => ch.Id == id, cancellationToken);
             if (cinemaHall is null)
                 return NotFound();
-            _context.CinemaHalls.Remove(cinemaHall);
-            _context.SaveChanges();
+            _repositoryCinemaHall.Delete(cinemaHall);
+            await _repositoryCinemaHall.SaveChangesAsync(cancellationToken);
             TempData["error"] = "Hall Deleted Successfully";
             return RedirectToAction(nameof(Index));
         }

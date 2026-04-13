@@ -7,3 +7,5 @@ global using System.IO;
 global using CinemaApplication.ViewModels;
 global using System.ComponentModel.DataAnnotations;
 global using CinemaApplication.Validations;
+global using CinemaApplication.Repositories;
+global using CinemaApplication.Repositories.IRepositories;

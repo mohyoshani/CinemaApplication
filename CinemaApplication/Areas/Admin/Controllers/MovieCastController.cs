@@ -1,14 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 
 namespace CinemaApplication.Areas.Admin.Controllers
 {
     [Area(nameof(SD.Admin))]
     public class MovieCastController : Controller
     {
-        private readonly ApplicationDbContext _context = new();
-        public IActionResult Index(int page = 1, string? query = null)
+        private readonly IRepository<Movie> _repositoryMovie;
+        private readonly IRepository<Actor> _repositoryActor;
+        private readonly IRepository<MovieActor> _repositoryMovieActor;
+
+        public MovieCastController(IRepository<Movie> repositoryMovie, IRepository<Actor> repositoryActor, IRepository<MovieActor> repositoryMovieActor)
         {
-            var movie = _context.Movies.Include(m => m.Category).AsNoTracking().AsQueryable();
+            _repositoryMovie = repositoryMovie;
+            _repositoryActor = repositoryActor;
+            _repositoryMovieActor = repositoryMovieActor;
+        }
+        public async Task<IActionResult> Index(int page = 1, string? query = null, CancellationToken cancellationToken = default)
+        {
+            //var movie = _context.Movies.Include(m => m.Category).AsNoTracking().AsQueryable();
+            var movie = await _repositoryMovie.GetAllAsync(cancellationToken: cancellationToken, tracked: false, includes: c => c.Include(m => m.Category));
             if (query is not null)
             {
                 var lowerQuery = query.ToLower().Trim();
@@ -28,9 +39,10 @@ namespace CinemaApplication.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create(int movieid)
+        public async Task<IActionResult> Create(int movieid, CancellationToken cancellationToken = default)
         {
-            var actors = _context.Actors.AsNoTracking().AsQueryable();
+            //var actors = _context.Actors.AsNoTracking().AsQueryable();
+            var actors = await _repositoryActor.GetAllAsync(cancellationToken: cancellationToken, tracked: false);
 
             return View(new AssignCastVM()
             {
@@ -41,27 +53,25 @@ namespace CinemaApplication.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(AssignCastVM vm)
+        public async Task<IActionResult> Create(AssignCastVM vm, CancellationToken cancellationToken = default)
         {
 
-         
+            if (vm.SelectedActorsIds != null && vm.SelectedActorsIds.Any())
+            {
+                var movieActorsList = new List<MovieActor>();
 
-                if (vm.SelectedActorsIds != null && vm.SelectedActorsIds.Any())
+                foreach (var actorId in vm.SelectedActorsIds)
                 {
-                    var movieActorsList = new List<MovieActor>();
-
-                    foreach (var actorId in vm.SelectedActorsIds)
+                    movieActorsList.Add(new MovieActor
                     {
-                        movieActorsList.Add(new MovieActor
-                        {
-                            MovieId = vm.MovieId,
-                            ActorId = actorId
-                        });
-                    }
+                        MovieId = vm.MovieId,
+                        ActorId = actorId
+                    });
+                }
                 if (ModelState.IsValid)
                 {
-                    _context.MovieActors.AddRange(movieActorsList);
-                    _context.SaveChanges();
+                    await _repositoryMovieActor.AddRangeAsync(movieActorsList, cancellationToken);
+                    await _repositoryMovieActor.SaveChangesAsync(cancellationToken);
 
                     TempData["success"] = "Cast Assigned Successfully";
                     return RedirectToAction(nameof(Index));
@@ -69,20 +79,26 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
             }
 
-            vm.Actors = _context.Actors.ToList();
+            vm.Actors = await _repositoryActor.GetAllAsync(cancellationToken: cancellationToken, tracked: false);
             return View(vm);
         }
 
 
         [HttpGet]
-        public IActionResult Update(int id)
+        public async Task<IActionResult> Update(int id, CancellationToken cancellationToken = default)
         {
-            var selectedActorIds = _context.MovieActors
-                .Where(ma => ma.MovieId == id)
+            //var selectedactorids = _context.movieactors
+            //    .where(ma => ma.movieid == id)
+            //    .select(ma => ma.actorid)
+            //    .tolist();
+
+            var selectedActorIds = (await _repositoryMovieActor.GetAllAsync(expression: ma => ma.MovieId == id,
+                cancellationToken: cancellationToken, 
+                tracked: false))
                 .Select(ma => ma.ActorId)
                 .ToList();
 
-            var actors = _context.Actors.AsNoTracking().ToList();
+            var actors = await _repositoryActor.GetAllAsync(cancellationToken: cancellationToken, tracked: false);
 
             var vm = new AssignCastVM()
             {
@@ -95,43 +111,49 @@ namespace CinemaApplication.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Update(int id, AssignCastVM model)
+        public async Task<IActionResult> Update(int id, AssignCastVM model, CancellationToken cancellationToken = default)
         {
             model.MovieId = id;
 
-         
-                var Cast = _context.MovieActors.Where(ma => ma.MovieId == model.MovieId);
-                _context.MovieActors.RemoveRange(Cast);
 
-                if (model.SelectedActorsIds != null && model.SelectedActorsIds.Any())
+            var Cast = await _repositoryMovieActor.GetAllAsync(expression: ma => ma.MovieId == model.MovieId, cancellationToken: cancellationToken, tracked: false);
+            await _repositoryMovieActor.DeleteRangeAsync(Cast);
+
+            if (model.SelectedActorsIds != null && model.SelectedActorsIds.Any())
+            {
+                foreach (var actorId in model.SelectedActorsIds)
                 {
-                    foreach (var actorId in model.SelectedActorsIds)
+                    await _repositoryMovieActor.CreateAsync(new MovieActor
                     {
-                        _context.MovieActors.Add(new MovieActor
-                        {
-                            MovieId = model.MovieId,
-                            ActorId = actorId
-                        });
-                    }
+                        MovieId = model.MovieId,
+                        ActorId = actorId
+                    }, cancellationToken);
                 }
+            }
             if (ModelState.IsValid)
             {
                 TempData["info"] = "Cast Updated Successfully";
-                _context.SaveChanges();
+                await _repositoryMovieActor.SaveChangesAsync(cancellationToken);
                 return RedirectToAction(nameof(Index));
             }
-            model.Actors = _context.Actors.ToList();
+            model.Actors = await _repositoryActor.GetAllAsync(cancellationToken: cancellationToken, tracked: false);
             return View(model);
         }
 
         [HttpGet]
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id, CancellationToken cancellationToken = default)
         {
-            var movieWithCast = _context.Movies
-                .Include(m => m.Category)
-                .Include(m => m.MovieActors)
-                .ThenInclude(ma => ma.Actor)
-                .FirstOrDefault(m => m.Id == id);
+            //var movieWithCast = _context.Movies
+            //    .Include(m => m.Category)
+            //    .Include(m => m.MovieActors)
+            //    .ThenInclude(ma => ma.Actor)
+            //    .FirstOrDefault(m => m.Id == id);
+
+            var movieWithCast = await _repositoryMovie.GetAllAsync(m => m.Id == id,
+                cancellationToken: cancellationToken, tracked: false,
+                includes: q => q.Include(m => m.Category)
+                    .Include(m => m.MovieActors)
+                    .ThenInclude(ma => ma.Actor));
 
             if (movieWithCast == null)
             {
@@ -143,15 +165,16 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
 
         [HttpPost]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
 
-            var movieCast = _context.MovieActors.Where(ma => ma.MovieId == id).ToList();
+            //var movieCast = _context.MovieActors.Where(ma => ma.MovieId == id).ToList();
+            var movieCast = await _repositoryMovieActor.GetAllAsync(expression: ma => ma.MovieId == id, tracked: false);
 
             if (movieCast.Any())
             {
-                _context.MovieActors.RemoveRange(movieCast);
-                _context.SaveChanges();
+                await _repositoryMovieActor.DeleteRangeAsync(movieCast);
+                await _repositoryMovieActor.SaveChangesAsync();
             }
             TempData["error"] = "Cast Deleted Successfully";
             return RedirectToAction(nameof(Index));

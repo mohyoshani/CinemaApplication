@@ -5,10 +5,20 @@ namespace CinemaApplication.Areas.Admin.Controllers
     [Area(nameof(SD.Admin))]
     public class MovieTheaterController : Controller
     {
-        private readonly ApplicationDbContext _context = new();
-        public IActionResult Index(int page = 1, string? query = null)
+        private readonly IRepository<Movie> _movieRepository;
+        private readonly IRepository<CinemaHall> _cinemaHallRepository;
+        private readonly IRepository<MovieTheater> _movieTheaterRepository;
+
+        public MovieTheaterController(IRepository<Movie> movieRepository, IRepository<CinemaHall> cinemaHallRepository, IRepository<MovieTheater> movieTheaterRepository)
         {
-            var movie = _context.Movies.Include(m => m.Category).AsNoTracking().AsQueryable();
+            _movieRepository = movieRepository;
+            _cinemaHallRepository = cinemaHallRepository;
+            _movieTheaterRepository = movieTheaterRepository;
+        }
+
+        public async Task<IActionResult> Index(int page = 1, string? query = null, CancellationToken cancellationToken = default)
+        {
+            var movie = await _movieRepository.GetAllAsync(cancellationToken: cancellationToken, tracked: false, includes: c => c.Include(m => m.Category));
             if (query is not null)
             {
                 var lowerQuery = query.ToLower().Trim();
@@ -27,9 +37,11 @@ namespace CinemaApplication.Areas.Admin.Controllers
             return View(vm);
         }
         [HttpGet]
-        public IActionResult Create(int movieid)
+        public async Task<IActionResult> Create(int movieid)
         {
-            var cinemaHalls = _context.CinemaHalls.AsNoTracking().ToList();
+
+
+            var cinemaHalls = await _cinemaHallRepository.GetAllAsync(tracked: false);
             return View(new AssignTheaterVM
             {
                 MovieId = movieid,
@@ -38,7 +50,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
             });
         }
         [HttpPost]
-        public IActionResult Create(AssignTheaterVM vm)
+        public async Task<IActionResult> Create(AssignTheaterVM vm, CancellationToken cancellationToken = default)
         {
 
             if (vm.SelectedCinemaHallIds != null && vm.SelectedCinemaHallIds.Any())
@@ -57,29 +69,32 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
                     movieTheatersList.Add(movieTheater);
                 }
-                _context.MovieTheaters.AddRange(movieTheatersList);
+                await _movieTheaterRepository.AddRangeAsync(movieTheatersList, cancellationToken: cancellationToken);
+                await _movieTheaterRepository.SaveChangesAsync();
             }
             if (ModelState.IsValid)
             {
-                _context.SaveChanges();
+                await _movieTheaterRepository.SaveChangesAsync(cancellationToken);
                 TempData["success"] = "Theater Created Successfully";
                 return RedirectToAction(nameof(Index));
             }
 
-            vm.CinemaHalls = _context.CinemaHalls.ToList();
+            vm.CinemaHalls = await _cinemaHallRepository.GetAllAsync(tracked: false, cancellationToken: cancellationToken);
             return View(vm);
         }
 
         [HttpGet]
-        public IActionResult Update(int id)
+        public async Task<IActionResult> Update(int id, CancellationToken cancellationToken = default)
         {
-            var selectedCinemaHallIds = _context.MovieTheaters
-                .Where(mt => mt.MovieId == id)
-                .Select(mt => mt.CinemaHallId)
-                .ToList();
 
-            var cinemaHalls = _context.CinemaHalls.AsNoTracking().ToList();
+            var selectedCinemaHallIds = (await _movieTheaterRepository.GetAllAsync(expression: ma => ma.MovieId == id,
+             cancellationToken: cancellationToken,
+             tracked: false))
+             .Select(ma => ma.CinemaHallId)
+             .ToList();
 
+
+            var cinemaHalls = await _cinemaHallRepository.GetAllAsync(tracked: false, cancellationToken: cancellationToken);
             var vm = new AssignTheaterVM()
             {
                 MovieId = id,
@@ -92,17 +107,20 @@ namespace CinemaApplication.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Update(int id, AssignTheaterVM vm)
+        public async Task<IActionResult> Update(int id, AssignTheaterVM vm, CancellationToken cancellationToken = default)
         {
             vm.MovieId = id;
 
-            var movieTheaters = _context.MovieTheaters.Where(mt => mt.MovieId == vm.MovieId);
-            _context.MovieTheaters.RemoveRange(movieTheaters);
+            var movieTheaters = await _movieTheaterRepository.GetAllAsync(
+                expression: mt => mt.MovieId == vm.MovieId,
+                cancellationToken: cancellationToken, 
+                tracked: false);
+            await _movieTheaterRepository.DeleteRangeAsync(movieTheaters);
             if (vm.SelectedCinemaHallIds != null && vm.SelectedCinemaHallIds.Any())
             {
                 foreach (var hallId in vm.SelectedCinemaHallIds)
                 {
-                    _context.MovieTheaters.Add(new MovieTheater
+                    await _movieTheaterRepository.CreateAsync(new MovieTheater
                     {
                         MovieId = vm.MovieId,
                         CinemaHallId = hallId,
@@ -115,21 +133,24 @@ namespace CinemaApplication.Areas.Admin.Controllers
             {
 
                 TempData["info"] = "Theater Updated Successfully";
-                _context.SaveChanges();
+                await _movieTheaterRepository.SaveChangesAsync(cancellationToken);
                 return RedirectToAction(nameof(Index));
             }
-            vm.CinemaHalls = _context.CinemaHalls.ToList();
+            vm.CinemaHalls = await _cinemaHallRepository.GetAllAsync(tracked: false, cancellationToken: cancellationToken);
             return View(vm);
         }
 
         [HttpGet]
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id, CancellationToken cancellationToken = default)
         {
-            var movieWithTheaters = _context.Movies
-                .Include(m => m.Category)
-                .Include(m => m.MovieTheaters)
-                .ThenInclude(mt => mt.CinemaHall)
-                .FirstOrDefault(m => m.Id == id);
+          
+            var movieWithTheaters = await _movieRepository.GetOneAsync(expression: m => m.Id == id,
+                cancellationToken: cancellationToken,
+                tracked: false,
+                includes: c =>
+                c.Include(m => m.Category)
+                    .Include(m => m.MovieTheaters)
+                    .ThenInclude(mt => mt.CinemaHall));
 
             if (movieWithTheaters == null)
             {
@@ -141,15 +162,15 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
 
         [HttpPost]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken = default)
         {
 
-            var movieTheaters = _context.MovieTheaters.Where(mt => mt.MovieId == id).ToList();
+            var movieTheaters = _movieTheaterRepository.GetAllAsync(expression: mt => mt.MovieId == id, cancellationToken: cancellationToken, tracked: false).Result;
 
             if (movieTheaters.Any())
             {
-                _context.MovieTheaters.RemoveRange(movieTheaters);
-                _context.SaveChanges();
+                await _movieTheaterRepository.DeleteRangeAsync(movieTheaters);
+                await _movieTheaterRepository.SaveChangesAsync(cancellationToken);
             }
             TempData["error"] = "Theater Deleted Successfully";
             return RedirectToAction(nameof(Index));

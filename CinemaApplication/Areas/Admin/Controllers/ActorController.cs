@@ -7,12 +7,19 @@ namespace CinemaApplication.Areas.Admin.Controllers
     [Area(nameof(Admin))]
     public class ActorController : Controller
     {
-        private readonly ApplicationDbContext _context = new();
-        public IActionResult Index(int page = 1, string? query = null)
+        //private readonly ApplicationDbContext _context = new();
+
+        private readonly IRepository<Actor> _repositoryActor;
+        public ActorController(IRepository<Actor> repositoryActor)
+        {
+            _repositoryActor = repositoryActor;
+        }
+        public async Task<IActionResult> Index(int page = 1, string? query = null , CancellationToken cancellationToken = default)
         {
             //Search
 
-            var actors = _context.Actors.AsNoTracking().AsQueryable();
+            //var actors = _context.Actors.AsNoTracking().AsQueryable();
+            var actors = await _repositoryActor.GetAllAsync(cancellationToken: cancellationToken , tracked: false);
             if (query is not null)
             {
                 var lowerQuery = query.ToLower().Trim();
@@ -22,7 +29,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
             //Pagination
 
             var totalActors = actors.Count();
-            actors = actors.AsNoTracking().Skip((page - 1) * 5).Take(5);
+            actors = actors.Skip((page - 1) * 5).Take(5);
             double totalpages = Math.Ceiling(totalActors / 5.0);
 
 
@@ -46,7 +53,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Actor actor, IFormFile Image)
+        public async Task<IActionResult> Create(Actor actor, IFormFile Image , CancellationToken cancellationToken = default)
         {
             if (ModelState.IsValid)
             {
@@ -60,8 +67,8 @@ namespace CinemaApplication.Areas.Admin.Controllers
                     }
                     actor.Image = fileName;
                 }
-                _context.Actors.Add(actor);
-                _context.SaveChanges();
+                await _repositoryActor.CreateAsync(actor, cancellationToken: cancellationToken);
+                await _repositoryActor.SaveChangesAsync(cancellationToken: cancellationToken);
                 TempData["success"] = "Actor Created Successfully";
                 return RedirectToAction(nameof(Index));
             }
@@ -69,9 +76,9 @@ namespace CinemaApplication.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult Update(int id)
+        public async Task<IActionResult> Update(int id , CancellationToken cancellationToken = default)
         {
-            var actor = _context.Actors.Find(id);
+            var actor = await _repositoryActor.GetOneAsync(a => a.Id == id, cancellationToken: cancellationToken);
 
             if (actor == null)
             {
@@ -79,13 +86,14 @@ namespace CinemaApplication.Areas.Admin.Controllers
             }
             return View(actor);
         }
-        [HttpPost]
 
-        public IActionResult Update(Actor actor, IFormFile Image)
+
+        [HttpPost]
+        public async Task<IActionResult> Update(Actor actor, IFormFile Image , CancellationToken cancellationToken = default)
         {
             if (ModelState.IsValid)
             {
-                var actorInDb = _context.Actors.AsNoTracking().SingleOrDefault(a => a.Id == actor.Id);
+                var actorInDb = await _repositoryActor.GetOneAsync(a => a.Id == actor.Id, cancellationToken: cancellationToken);
                 if (actorInDb == null)
                 {
                     return NotFound();
@@ -93,6 +101,16 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
                 if (Image is not null && Image.Length > 0)
                 {
+                   
+                    if (actorInDb.Image is not null)
+                    {
+                        var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "Admin", "Actor", actorInDb.Image);
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
                     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "Admin", "Actor", fileName);
                     using (var stream = new FileStream(filePath, FileMode.Create))
@@ -105,25 +123,27 @@ namespace CinemaApplication.Areas.Admin.Controllers
                 {
                     actor.Image = actorInDb.Image;
                 }
-                _context.Actors.Update(actor);
-                _context.SaveChanges();
+
+                _repositoryActor.Update(actor);
+                await _repositoryActor.SaveChangesAsync(cancellationToken);
                 TempData["info"] = "Actor Updated Successfully";
                 return RedirectToAction(nameof(Index));
             }
             return View(actor);
         }
 
-
         [HttpPost]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken = default)
         {
-            var actor = _context.Actors.Find(id);
+            var actor = await _repositoryActor.GetOneAsync(a => a.Id == id , cancellationToken: cancellationToken);
             if (actor == null)
             {
                 return NotFound();
             }
-            _context.Actors.Remove(actor);
-            _context.SaveChanges();
+            //_context.Actors.Remove(actor);
+            //_context.SaveChanges();
+            _repositoryActor.Delete(actor);
+            await _repositoryActor.SaveChangesAsync(cancellationToken: cancellationToken);
             TempData["error"] = "Actor Deleted Successfully";
             return RedirectToAction(nameof(Index));
         }
