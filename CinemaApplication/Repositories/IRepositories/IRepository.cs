@@ -21,6 +21,6 @@ namespace CinemaApplication.Repositories.IRepositories
         Task AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
         Task DeleteRangeAsync(IEnumerable<T> entities);
 
-        Task<int> CountAsync(Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default);
+        
     }
 }
