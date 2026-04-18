@@ -149,7 +149,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
             //    .ThenInclude(ma => ma.Actor)
             //    .FirstOrDefault(m => m.Id == id);
 
-            var movieWithCast = await _repositoryMovie.GetAllAsync(m => m.Id == id,
+            var movieWithCast = await _repositoryMovie.GetOneAsync(m => m.Id == id,
                 cancellationToken: cancellationToken, tracked: false,
                 includes: q => q.Include(m => m.Category)
                     .Include(m => m.MovieActors)
@@ -162,7 +162,6 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
             return View(movieWithCast);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)

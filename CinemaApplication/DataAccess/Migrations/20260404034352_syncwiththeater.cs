@@ -10,9 +10,9 @@ namespace CinemaApplication.DataAccess.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "CinemaId",
-                table: "MovieTheaters");
+            //migrationBuilder.DropColumn(
+            //    name: "CinemaId",
+            //    table: "MovieTheaters");
         }
 
         /// <inheritdoc />

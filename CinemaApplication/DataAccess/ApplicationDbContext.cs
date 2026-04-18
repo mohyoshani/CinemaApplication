@@ -1,8 +1,11 @@
 ﻿using CinemaApplication.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using CinemaApplication.ViewModels;
 
 namespace CinemaApplication.DataAccess
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
        : base(options)
@@ -23,6 +26,8 @@ namespace CinemaApplication.DataAccess
         {
             base.OnModelCreating(modelBuilder);
         }
+        public DbSet<CinemaApplication.ViewModels.RegisterVM> RegisterVM { get; set; } = default!;
+        public DbSet<CinemaApplication.ViewModels.LoginVM> LoginVM { get; set; } = default!;
     }
 }
 

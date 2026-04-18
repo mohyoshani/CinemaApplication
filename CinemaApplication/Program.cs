@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+
 namespace CinemaApplication
 {
     public class Program
@@ -8,14 +11,30 @@ namespace CinemaApplication
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequiredLength = 8;
+                options.SignIn.RequireConfirmedEmail = false;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            })
+             .AddEntityFrameworkStores<ApplicationDbContext>()
+             .AddDefaultTokenProviders();
+
+            builder.Services.AddTransient<IEmailSender, EmailSender>();
             builder.Services.AddScoped<IRepository<Actor>, Repository<Actor>>();
             builder.Services.AddScoped<IRepository<Category>, Repository<Category>>();
             builder.Services.AddScoped<IRepository<CinemaHall>, Repository<CinemaHall>>();
+            builder.Services.AddScoped<IRepository<MovieImage>, Repository<MovieImage>>();
             builder.Services.AddScoped<IRepository<Movie>, Repository<Movie>>();
             builder.Services.AddScoped<IRepository<MovieActor>, Repository<MovieActor>>();
             builder.Services.AddScoped<IRepository<MovieTheater>, Repository<MovieTheater>>();
-            builder.Services.AddScoped<IHomeCountersRepository,HomeCountersRepository>();
+            builder.Services.AddScoped<IHomeCountersRepository, HomeCountersRepository>();
 
+
+           
             string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
               throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
