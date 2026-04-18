@@ -18,7 +18,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
         }
         public async Task<IActionResult> Index(int page = 1, string? query = null, CancellationToken cancellationToken = default)
         {
-            //var movie = _context.Movies.Include(m => m.Category).AsNoTracking().AsQueryable();
+           
             var movie = await _repositoryMovie.GetAllAsync(cancellationToken: cancellationToken, tracked: false, includes: c => c.Include(m => m.Category));
             if (query is not null)
             {

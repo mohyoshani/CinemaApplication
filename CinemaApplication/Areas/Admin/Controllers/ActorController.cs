@@ -18,7 +18,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
         {
             //Search
 
-            //var actors = _context.Actors.AsNoTracking().AsQueryable();
+            
             var actors = await _repositoryActor.GetAllAsync(cancellationToken: cancellationToken , tracked: false);
             if (query is not null)
             {
