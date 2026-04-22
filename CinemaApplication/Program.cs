@@ -22,7 +22,7 @@ namespace CinemaApplication
             })
              .AddEntityFrameworkStores<ApplicationDbContext>()
              .AddDefaultTokenProviders();
-
+       
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             builder.Services.AddScoped<IRepository<Actor>, Repository<Actor>>();
             builder.Services.AddScoped<IRepository<Category>, Repository<Category>>();
@@ -32,7 +32,7 @@ namespace CinemaApplication
             builder.Services.AddScoped<IRepository<MovieActor>, Repository<MovieActor>>();
             builder.Services.AddScoped<IRepository<MovieTheater>, Repository<MovieTheater>>();
             builder.Services.AddScoped<IHomeCountersRepository, HomeCountersRepository>();
-
+            builder.Services.AddScoped<IRepository<ApplicationUserOTP> , Repository<ApplicationUserOTP>>();
 
            
             string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??

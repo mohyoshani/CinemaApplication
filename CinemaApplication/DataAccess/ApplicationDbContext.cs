@@ -20,6 +20,7 @@ namespace CinemaApplication.DataAccess
         public DbSet<MovieTheater> MovieTheaters { get; set; }
         public DbSet<CinemaHall> CinemaHalls { get; set; }
         public DbSet<MovieImage> MovieImages { get; set; }
+        public DbSet<ApplicationUserOTP> ApplicationUserOTPs { get; set; }
 
        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -28,6 +29,7 @@ namespace CinemaApplication.DataAccess
         }
         public DbSet<CinemaApplication.ViewModels.RegisterVM> RegisterVM { get; set; } = default!;
         public DbSet<CinemaApplication.ViewModels.LoginVM> LoginVM { get; set; } = default!;
+        public DbSet<CinemaApplication.ViewModels.ResendConfirmationVM> ResendConfirmationVM { get; set; } = default!;
     }
 }
 

@@ -1,0 +1,114 @@
+﻿@model ApplicationUserVM
+
+<div class="container my-3">
+    <div class="row gutters">
+        <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="account-settings">
+                        <div class="user-profile text-center">
+                            <div class="user-avatar mb-3">
+                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png" style="width: 70%" alt="User Avatar" class="rounded-circle">
+                            </div>
+                            <h5 class="user-name">@Model.FirstName @Model.LastName</h5>
+                            <h6 class="user-email text-muted">@Model.Email</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
+            <form asp-action="Update" method="post">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="row gutters">
+                            <div class="col-12">
+                                <h6 class="mb-3 text-primary">Personal Details</h6>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="FirstName">First Name</label>
+                                    <input asp-for="FirstName" class="form-control" placeholder="Enter first name">
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="LastName">Last Name</label>
+                                    <input asp-for="LastName" class="form-control" placeholder="Enter last name">
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Email">Email</label>
+                                    <input asp-for="Email" class="form-control" placeholder="Enter email ID">
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="PhoneNumber">Phone</label>
+                                    <input asp-for="PhoneNumber" class="form-control" placeholder="Enter phone number">
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Address">Address</label>
+                                    <input asp-for="Address" class="form-control" placeholder="Enter Address">
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="row gutters">
+                            <div class="col-12">
+                                <h6 class="mb-3 text-primary">Security (Change Password)</h6>
+                                <p class="small text-muted">Leave blank if you don't want to change password</p>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <label asp-for="CurrentPassword">Current Password</label>
+                                    <input asp-for="CurrentPassword" type="password" class="form-control" placeholder="Current Password">
+                                    <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <label asp-for="NewPassword">New Password</label>
+                                    <input asp-for="NewPassword" type="password" class="form-control" placeholder="New Password">
+                                    <span asp-validation-for="NewPassword" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <label asp-for="ConfirmPassword">Confirm Password</label>
+                                    <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm Password">
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row gutters mt-4">
+                            <div class="col-12">
+                                <div class="text-right">
+                                    <button type="reset" class="btn btn-secondary">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

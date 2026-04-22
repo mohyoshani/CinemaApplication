@@ -1,0 +1,55 @@
+﻿@model CinemaApplication.ViewModels.ValidateOTPVM
+@{
+    ViewData["Title"] = "Verify OTP";
+    Layout = "~/Areas/Identity/Views/Shared/_IdentityLayout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-5">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-4 p-sm-5 text-center">
+                    
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle" style="width: 80px; height: 80px;">
+                            <i class="bi bi-patch-check text-success" style="font-size: 2.5rem;"></i>
+                        </div>
+                    </div>
+
+                    <h2 class="fw-bold mb-3">Verify Your Identity</h2>
+                    <p class="text-muted mb-4">
+                        We've sent a 6-digit code to your email. Please enter it below to proceed.
+                    </p>
+
+                    <form asp-action="ValidateOTP" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+                        
+                    
+
+                        <div class="form-group mb-4">
+                            <label asp-for="OTP" class="form-label fw-semibold">Verification Code</label>
+                            <input asp-for="OTP" class="form-control form-control-lg text-center fw-bold italic"
+                                   placeholder="000000"
+                                   style="letter-spacing: 0.5rem; font-size: 1.5rem;"
+                                   maxlength="6" />
+                            <span asp-validation-for="OTP" class="text-danger small"></span>
+                        </div>
+
+                        <button type="submit" id="btnSubmit" class="btn btn-primary btn-lg w-100 mb-3 shadow-sm">
+                            Validate Code
+                        </button>
+                    </form>
+
+                    <div class="mt-3">
+                        <a asp-action="ForgetPassword" class="text-primary text-decoration-none fw-semibold"> Back To forget Password</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    @* <partial name="_NotificationPartial" /> *@
+}
