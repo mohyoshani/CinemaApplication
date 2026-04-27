@@ -1,6 +1,8 @@
-﻿namespace CinemaApplication.Areas.Admin.Controllers
+﻿
+namespace CinemaApplication.Areas.Admin.Controllers
 {
     [Area(nameof(SD.Admin))]
+    [Authorize]
     public class CategoryController : Controller
     {
         private readonly IRepository<Category> _repositoryCategory;

@@ -23,6 +23,11 @@ namespace CinemaApplication.Areas.Identity.Controllers
             _userOTP = userOTP;
         }
 
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
         [HttpGet]
         public IActionResult Register()
         {
@@ -60,6 +65,7 @@ namespace CinemaApplication.Areas.Identity.Controllers
 
 
             await SendConfirmationEmail(user);
+            await _userManager.AddToRoleAsync(user, SD.Customer_Role);
 
             TempData["success"] = "Account Registered Successfully";
             return RedirectToAction(nameof(Login), "Account", new { area = SD.Identity });
@@ -257,7 +263,7 @@ namespace CinemaApplication.Areas.Identity.Controllers
         {
             await _signInManager.SignOutAsync();
             TempData.Clear();
-            return RedirectToAction(nameof(Login), "Account", new { area = SD.Identity });
+            return RedirectToAction(nameof(Index), "Home", new { area = SD.Admin });
         }
 
         private async Task<bool> SendConfirmationEmail(ApplicationUser user)

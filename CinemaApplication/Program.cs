@@ -6,6 +6,7 @@ namespace CinemaApplication
     public class Program
     {
         public static void Main(string[] args)
+
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,12 @@ namespace CinemaApplication
             })
              .AddEntityFrameworkStores<ApplicationDbContext>()
              .AddDefaultTokenProviders();
-       
+
+            builder.Services.ConfigureApplicationCookie(optoins =>
+            {
+                optoins.LoginPath = "/Identity/Account/Login";
+                optoins.AccessDeniedPath = "/Identity/Account/AccessDenied";
+            });
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             builder.Services.AddScoped<IRepository<Actor>, Repository<Actor>>();
             builder.Services.AddScoped<IRepository<Category>, Repository<Category>>();
@@ -34,7 +40,10 @@ namespace CinemaApplication
             builder.Services.AddScoped<IHomeCountersRepository, HomeCountersRepository>();
             builder.Services.AddScoped<IRepository<ApplicationUserOTP> , Repository<ApplicationUserOTP>>();
 
-           
+
+          
+
+
             string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
               throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -42,6 +51,7 @@ namespace CinemaApplication
                 options.UseSqlServer(connectionString);
             });
 
+            builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
             var app = builder.Build();
 
@@ -53,9 +63,15 @@ namespace CinemaApplication
                 app.UseHsts();
             }
 
+
+            var scope = app.Services.CreateScope();
+            var service = scope.ServiceProvider.GetService<IDbInitializer>();
+            service.Initialize();
+
             app.UseHttpsRedirection();
             app.UseRouting();
-
+            
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
