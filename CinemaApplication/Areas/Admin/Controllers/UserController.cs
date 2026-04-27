@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Configuration;
+using System.Transactions;
 
 namespace CinemaApplication.Areas.Admin.Controllers
 {
@@ -94,16 +95,20 @@ namespace CinemaApplication.Areas.Admin.Controllers
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user is null) return NotFound();
-
+            //يعكس الحالة لوك او انلوك حسب الحالة الحالية اللي جاية من الفيو
             user.LockoutEnabled = !user.LockoutEnabled;
-            if(user.LockoutEnabled)
+            if(!user.LockoutEnabled)
             {
-                user.LockoutEnd = user.LockoutEnd = DateTime.Now.AddDays(14); ;
+                user.LockoutEnd = DateTime.Now.AddDays(14); ;
+                TempData["warning"] = $"User {user.UserName} locked successfully";
             }
             else
             {
+                TempData["warning"] = $"User {user.UserName} unlocked successfully";
                 user.LockoutEnd = null;
             }
+
+           
             await _userManager.UpdateAsync(user);
 
             return RedirectToAction(nameof(Index));
