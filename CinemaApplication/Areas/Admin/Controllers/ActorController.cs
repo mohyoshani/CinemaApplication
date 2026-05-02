@@ -22,8 +22,8 @@ namespace CinemaApplication.Areas.Admin.Controllers
             var actors = await _repositoryActor.GetAllAsync(cancellationToken: cancellationToken , tracked: false);
             if (query is not null)
             {
-                var lowerQuery = query.ToLower().Trim();
-                actors = actors.Where(a => a.Name.Contains(lowerQuery));
+                
+                actors = actors.Where(a => a.Name.ToLower().Trim().Contains(query));
             }
 
             //Pagination
@@ -33,9 +33,7 @@ namespace CinemaApplication.Areas.Admin.Controllers
             double totalpages = Math.Ceiling(totalActors / 5.0);
 
 
-            if (!actors.Any())
-                return NotFound();
-
+         
 
             return View(new ActorsVM()
             {

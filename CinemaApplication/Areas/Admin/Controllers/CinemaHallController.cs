@@ -17,8 +17,8 @@ namespace CinemaApplication.Areas.Admin.Controllers
             //Search
             if (query is not null)
             {
-                var lowerQuery = query.ToLower().Trim();
-                cinemaHall = cinemaHall.Where(c => c.Name.Contains(query));
+                
+                cinemaHall = cinemaHall.Where(c => c.Name.ToLower().Trim().Contains(query));
             }
 
             int totalCinemaHalls = cinemaHall.Count();

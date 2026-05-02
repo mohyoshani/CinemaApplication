@@ -1,14 +1,13 @@
 ﻿@model CreateMovieVM
 
-<form action="~/Admin/Movie/Update/@Model.Movie.Id" method="post" enctype="multipart/form-data">
+<form asp-action="Update" asp-controller="Movie" asp-route-id="@Model.Movie.Id" method="post" enctype="multipart/form-data">
   
-    <input type="hidden" name="Movie.Id" value="@Model.Movie.Id" />
-    <input type="hidden" name="Movie.Mainimage" value="@Model.Movie.Mainimage" />
-
+   
+    <input type="hidden" name="MainImage" value="@Model.Movie.Mainimage" />
+    
     <div class="mb-3">
         <label class="form-label">Movie Poster</label>
-       
-        <img src="~/images/Admin/Movie/@Model.Movie.Mainimage" alt="Movie Poster" class="form-control img-thumbnail" style="max-width: 200px;">
+        <img src="~/images/Admin/Movie/@Model.Movie.Mainimage" name="Movie.Mainimage" alt="Movie Poster" class="form-control img-thumbnail" style="max-width: 200px;">
         </div>
 
         <div class="mb-3">
@@ -17,6 +16,13 @@
             <input type="text" class="form-control" name="Movie.Title" value="@Model.Movie.Title">
             <span asp-validation-for="Movie.Title" class="text-danger"></span>
         </div>
+
+    <div class="mb-3">
+        <label class="form-label">Movie Description</label>
+         
+        <input type="text" class="form-control" name="Movie.Description" value="@Model.Movie.Description">
+        <span asp-validation-for="Movie.Description" class="text-danger"></span>
+    </div>
 
         <div class="mb-3">
             <label class="form-label">Category</label>
@@ -73,3 +79,8 @@
         <button type="submit" class="btn btn-warning">Update Movie</button>
         <a href="~/Admin/Movie/Index" class="btn btn-secondary">Cancel</a>
     </form>
+@section Scripts 
+{
+<partial name="_ValidationScriptsPartial" />
+<partial name="_NotificationPartial" />
+}

@@ -21,8 +21,10 @@ namespace CinemaApplication.DataAccess
         public DbSet<CinemaHall> CinemaHalls { get; set; }
         public DbSet<MovieImage> MovieImages { get; set; }
         public DbSet<ApplicationUserOTP> ApplicationUserOTPs { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<FavouriteMovies> FavouriteMovies { get; set; }
 
-       
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -17,16 +17,14 @@ namespace CinemaApplication.Areas.Admin.Controllers
 
             if (query is not null)
             {
-                var lowerquery = query.ToLower().Trim();
-                categories = categories.Where(c => c.Name.Contains(lowerquery));
+                categories = categories.Where(c => c.Name.ToLower().Trim().Contains(query));
             }
 
             int CategoryCount = categories.Count();
             categories = categories.Skip((page - 1) * 5).Take(5);
             double totalPages = Math.Ceiling(CategoryCount / 5.0);
 
-            if (!categories.Any())
-                return NotFound();
+          
 
             return View(new CategoryVM()
             {

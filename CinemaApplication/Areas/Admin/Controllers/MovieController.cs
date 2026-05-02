@@ -24,8 +24,8 @@ namespace CinemaApplication.Areas.Admin.Controllers
                 includes: c => c.Include(m => m.Category));
             if (query is not null)
             {
-                var lowerQuery = query.ToLower().Trim();
-                movie = movie.Where(m => m.Title.Contains(query));
+                
+                movie = movie.Where(m => m.Title.ToLower().Trim().Contains(query));
             }
 
             int moviesCount = movie.Count();
@@ -109,7 +109,6 @@ namespace CinemaApplication.Areas.Admin.Controllers
             if (movie == null)
                 return NotFound();
 
-
             return View(new CreateMovieVM()
             {
                 Movie = movie,
@@ -118,12 +117,17 @@ namespace CinemaApplication.Areas.Admin.Controllers
             });
         }
         [HttpPost]
-        public async Task<IActionResult> Update(CreateMovieVM vm, IFormFile MainImage, List<IFormFile> SubImages, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> Update(int Id , CreateMovieVM vm, IFormFile? MainImage, List<IFormFile> SubImages, CancellationToken cancellationToken = default)
         {
-            if (ModelState.IsValid)
+            vm.Movie.Id = Id;
+            if (!ModelState.IsValid)
             {
+                vm.Categories = await _categoryRepository.GetAllAsync(tracked: false, cancellationToken: cancellationToken);
+                TempData["error"] = "Failed to Update Movie. Please check the input data.";
+                return View(vm);
+            }
 
-                var movieInDb = await _movieRepository.GetOneAsync(expression: m => m.Id == vm.Movie.Id, cancellationToken: cancellationToken, tracked: false);
+            var movieInDb = await _movieRepository.GetOneAsync(expression: m => m.Id == vm.Movie.Id, cancellationToken: cancellationToken, tracked: false);
                 if (movieInDb == null)
                     return NotFound();
 
@@ -185,10 +189,10 @@ namespace CinemaApplication.Areas.Admin.Controllers
                     await _movieImageRepository.SaveChangesAsync(cancellationToken);
                 }
                 TempData["info"] = "Movie Updated Successfully";
+
                 return RedirectToAction(nameof(Index));
-            }
-            TempData["error"] = "Failed to Update Movie. Please check the input data.";
-            return View(vm);
+            
+           
         }
 
         [HttpPost]
