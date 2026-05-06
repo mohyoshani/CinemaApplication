@@ -76,7 +76,8 @@ namespace CinemaApplication.Areas.Customer.Controllers
             await _orderRepository.SaveChangesAsync(cancellationToken);
 
             
-            var theater = await _movieTheaterRepository.GetOneAsync(mt => mt.Id == movieTheaterId, cancellationToken);
+            var theater = await _movieTheaterRepository.GetOneAsync(mt => mt.Id == movieTheaterId, cancellationToken, false
+                , includes: mt => mt.Include(mt => mt.Movie));
 
             var orderItem = new OrderItem
             {

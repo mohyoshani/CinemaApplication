@@ -29,6 +29,7 @@ namespace CinemaApplication
                 optoins.LoginPath = "/Identity/Account/Login";
                 optoins.AccessDeniedPath = "/Identity/Account/AccessDenied";
             });
+          
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             builder.Services.AddScoped<IRepository<Actor>, Repository<Actor>>();
             builder.Services.AddScoped<IRepository<Category>, Repository<Category>>();
@@ -42,7 +43,6 @@ namespace CinemaApplication
             builder.Services.AddScoped<IRepository<Cart>, Repository<Cart>>();
             builder.Services.AddScoped<IRepository<CartItem>, Repository<CartItem>>();
             builder.Services.AddScoped<IRepository<CartItemSeat>, Repository<CartItemSeat>>();
-            builder.Services.AddScoped<IRepository<MovieTheater>, Repository<MovieTheater>>();
             builder.Services.AddScoped<IRepository<OrderItemSeat>, Repository<OrderItemSeat>>();
 
 
@@ -68,7 +68,7 @@ namespace CinemaApplication
             }
 
 
-            var scope = app.Services.CreateScope();
+            using var scope = app.Services.CreateScope();
             var service = scope.ServiceProvider.GetService<IDbInitializer>();
             service.Initialize();
 
