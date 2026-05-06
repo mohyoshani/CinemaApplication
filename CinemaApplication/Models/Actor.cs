@@ -1,7 +1,4 @@
-﻿using Microsoft.VisualBasic;
-
-
-namespace CinemaApplication.Models
+﻿namespace CinemaApplication.Models
 {
     public class Actor
     {

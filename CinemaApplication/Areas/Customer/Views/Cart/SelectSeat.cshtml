@@ -1,0 +1,71 @@
+﻿@model MovieTheater
+@{
+    List<int> reservedIds = ViewBag.ReservedSeatIds;
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h2 class="display-4 fw-bold">@Model.Movie.Title</h2>
+        <p class="lead text-muted">Time: @Model.Showtime.ToString("MMM dd, hh:mm tt") | Hall: @Model.CinemaHall.Name</p>
+    </div>
+
+    <!-- Screen Direction Indicator -->
+    <div class="w-75 mx-auto mb-5">
+        <div class="border-bottom border-primary border-5 text-center pb-2 shadow-sm">
+            <h4 class="text-primary text-uppercase tracking-widest">SCREEN</h4>
+        </div>
+    </div>
+
+    <form asp-controller="Order" asp-action="Checkout" method="post">
+    
+        <input type="hidden" name="id" value="@Model.Id" />
+
+        <div class="d-flex flex-wrap justify-content-center gap-3 mb-5 px-4" style="max-width: 900px; margin: auto;">
+            @foreach (var seat in Model.CinemaHall.Seats.OrderBy(s => s.Row).ThenBy(s => s.Number))
+            {
+                bool isReserved = reservedIds.Contains(seat.Id);
+                
+                <div class="seat-item">
+                    <input type="checkbox" name="seatIds" value="@seat.Id"
+                           id="seat-@seat.Id" class="btn-check"
+                    @(isReserved ? "disabled" : "") />
+                    
+                    <label class="btn @(isReserved ? "btn-danger disabled-seat" : "btn-outline-primary") p-3 d-flex align-items-center justify-content-center shadow-sm"
+                           for="seat-@seat.Id" style="width: 55px; height: 55px;">
+                        <small>@seat.Row@seat.Number</small>
+                    </label>
+                </div>
+            }
+        </div>
+
+        <div class="card bg-light border-0 shadow-sm p-4 text-center">
+            <div class="mb-3">
+                <span class="badge bg-outline-primary border border-primary text-primary me-3 p-2">Available</span>
+                <span class="badge bg-danger me-3 p-2">Reserved</span>
+                <span class="badge bg-success p-2">Your Selection</span>
+            </div>
+            <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill shadow">
+                Confirm Selection & Continue <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .btn-check:checked + .btn {
+        background-color: #198754 !important;
+        color: white !important;
+        border-color: #198754 !important;
+        transform: scale(1.1);
+    }
+
+    .disabled-seat {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .seat-item label {
+        transition: all 0.2s ease;
+        font-weight: bold;
+    }
+</style>

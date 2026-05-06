@@ -40,7 +40,10 @@ namespace CinemaApplication
             builder.Services.AddScoped<IHomeCountersRepository, HomeCountersRepository>();
             builder.Services.AddScoped<IRepository<ApplicationUserOTP> , Repository<ApplicationUserOTP>>();
             builder.Services.AddScoped<IRepository<Cart>, Repository<Cart>>();
-
+            builder.Services.AddScoped<IRepository<CartItem>, Repository<CartItem>>();
+            builder.Services.AddScoped<IRepository<CartItemSeat>, Repository<CartItemSeat>>();
+            builder.Services.AddScoped<IRepository<MovieTheater>, Repository<MovieTheater>>();
+            builder.Services.AddScoped<IRepository<OrderItemSeat>, Repository<OrderItemSeat>>();
 
 
 

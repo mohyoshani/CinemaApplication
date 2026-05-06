@@ -12,6 +12,10 @@ namespace CinemaApplication.Models
         [Required]
         public string Location { get; set; } = string.Empty;
         public string? Image { get; set; }
+        [Required]
+        [Range(1,500)]
+        public int TotalSeats { get; set; }
         public ICollection<MovieTheater>? MovieTheaters { get; set; }
+        public ICollection<Seat>? Seats { get; set; }
     }
 }

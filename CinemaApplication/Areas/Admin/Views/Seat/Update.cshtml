@@ -1,0 +1,52 @@
+﻿@model Seat
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Edit Seat Details</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <!-- الحقول المخفية لضمان عدم ضياع البيانات الأساسية -->
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CinemaHallId" />
+
+                        <div class="mb-3">
+                            <label asp-for="Row" class="form-label fw-bold">Row Name</label>
+                            <input asp-for="Row" class="form-control" placeholder="e.g. A" />
+                            <span asp-validation-for="Row" class="text-danger"></span>
+                            <div class="form-text">Example: A, B, C...</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Number" class="form-label fw-bold">Seat Number</label>
+                            <input asp-for="Number" class="form-control" placeholder="e.g. 5" />
+                            <span asp-validation-for="Number" class="text-danger"></span>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-warning px-4">
+                                <i class="bi bi-save"></i> Update Seat
+                            </button>
+                            <a asp-action="Index" asp-route-hallId="@Model.CinemaHallId" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="mt-3 text-center">
+                <small class="text-muted">Hall ID: @Model.CinemaHallId | Seat ID: @Model.Id</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

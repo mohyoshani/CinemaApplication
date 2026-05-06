@@ -1,0 +1,53 @@
+﻿@model IEnumerable<Seat>
+<div class="container mt-4">
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Auto-Generate Seats</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="GenerateSeats" method="post" class="row g-3">
+                <input type="hidden" name="hallId" value="@ViewBag.HallId" />
+                <div class="col-md-4">
+                    <label class="form-label">Number of Rows</label>
+                    <input type="number" name="rowsCount" class="form-control" placeholder="e.g. 10" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Seats Per Row</label>
+                    <input type="number" name="seatsPerRow" class="form-control" placeholder="e.g. 12" required />
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success w-100">Generate Now</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Existing Seats</h3>
+        <span class="badge bg-info text-dark">Total: @Model.Count() Seats</span>
+    </div>
+
+    <table class="table table-striped border shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Row</th>
+                <th>Seat Number</th>
+                <th class="text-center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Row</td>
+                    <td>@item.Number</td>
+                    <td class="text-center">
+                        <a asp-action="Delete" asp-route-id="@item.Id"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Are you sure?')">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

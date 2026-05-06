@@ -1,0 +1,57 @@
+﻿@model Order
+
+<div class="container mt-5 mb-5">
+    <div class="card shadow border-0">
+        <div class="card-header bg-dark text-white p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Digital Ticket Summary</h4>
+                <span class="badge bg-primary px-3 py-2">Order #@Model.Id</span>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="row mb-4 border-bottom pb-3">
+                <div class="col-sm-6">
+                    <h6 class="text-muted">Booking Date:</h6>
+                    <p class="fw-bold">@Model.OrderDate.ToLocalTime().ToString("f")</p>
+                </div>
+                <div class="col-sm-6 text-sm-end">
+                    <h6 class="text-muted">Status:</h6>
+                    <p class="text-success fw-bold">@Model.Status</p>
+                </div>
+            </div>
+
+            @foreach (var item in Model.OrderItems!)
+            {
+                <div class="row align-items-center mb-4 bg-light rounded p-3 mx-0">
+                    <div class="col-md-2">
+                        <img src="@item.MovieTheater!.Movie!.Mainimage" class="img-fluid rounded shadow-sm" />
+                    </div>
+                    <div class="col-md-7">
+                        <h5 class="fw-bold">@item.MovieTheater.Movie.Title</h5>
+                        <p class="mb-1 text-muted small"><i class="bi bi-geo-alt"></i> Hall: @item.MovieTheater.CinemaHall!.Name</p>
+                        <div class="mt-2">
+                            <span class="small fw-bold">Reserved Seats:</span>
+                            @foreach (var seatRecord in item.BookedSeats!)
+                            {
+                                <span class="badge bg-secondary me-1">@seatRecord.Seat!.Row@seatRecord.Seat.Number</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-end text-primary h5 mb-0">
+                        $@item.TotalPrice
+                    </div>
+                </div>
+            }
+
+            <div class="d-flex justify-content-between align-items-center mt-5">
+                <h3 class="fw-bold">Grand Total:</h3>
+                <h2 class="text-success fw-bold">$@Model.TotalPrice</h2>
+            </div>
+        </div>
+        <div class="card-footer bg-light text-center p-4">
+            <button onclick="window.print()" class="btn btn-outline-dark px-5">
+                <i class="bi bi-printer"></i> Print My Tickets
+            </button>
+        </div>
+    </div>
+</div>

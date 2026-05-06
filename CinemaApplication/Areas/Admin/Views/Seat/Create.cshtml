@@ -1,0 +1,20 @@
+﻿@model Seat
+<div class="container mt-4">
+    <h4>Add New Seat to Hall</h4>
+    <hr />
+    <form asp-action="Create">
+        <input type="hidden" asp-for="CinemaHallId" />
+        <div class="mb-3">
+            <label asp-for="Row" class="form-label">Row Name (e.g., A, B, C)</label>
+            <input asp-for="Row" class="form-control" />
+            <span asp-validation-for="Row" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Number" class="form-label">Seat Number</label>
+            <input asp-for="Number" class="form-control" />
+            <span asp-validation-for="Number" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-success">Save Seat</button>
+        <a asp-action="Index" asp-route-hallId="@Model.CinemaHallId" class="btn btn-secondary">Back</a>
+    </form>
+</div>

@@ -11,6 +11,6 @@
         public bool IsUsed { get; set; } = false;
         public string ApplicationUserId { get; set; } = string.Empty;
         public ApplicationUser ApplicationUser { get; set; }
-        public bool IsValid => (ExpireIn - CreatedAt).TotalMinutes > 0 && !IsUsed;
+        public bool IsValid => (ExpireIn - DateTime.UtcNow).TotalMinutes > 0 && !IsUsed;
     }
 }

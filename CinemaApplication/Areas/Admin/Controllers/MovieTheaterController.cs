@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
 
 namespace CinemaApplication.Areas.Admin.Controllers
 {
