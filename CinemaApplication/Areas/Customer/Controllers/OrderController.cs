@@ -11,18 +11,21 @@ namespace CinemaApplication.Areas.Customer.Controllers
         private readonly IRepository<OrderItem> _orderItemRepository;
         private readonly IRepository<OrderItemSeat> _orderItemSeatRepository;
         private readonly IRepository<Cart> _cartRepository;
+        private readonly IRepository<MovieTheater> _movieTheaterRepository;
 
         public OrderController(
             UserManager<ApplicationUser> userManager,
             IRepository<Order> orderRepository,
             IRepository<OrderItem> orderItemRepository,
             IRepository<OrderItemSeat> orderItemSeatRepository,
-            IRepository<Cart> cartRepository)
+            IRepository<Cart> cartRepository ,
+            IRepository<MovieTheater> movieTheaterRepository)
         {
             _userManager = userManager;
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
             _orderItemSeatRepository = orderItemSeatRepository;
+            _movieTheaterRepository = movieTheaterRepository;
             _cartRepository = cartRepository;
         }
 
@@ -37,20 +40,34 @@ namespace CinemaApplication.Areas.Customer.Controllers
             return View(orders.OrderByDescending(o => o.OrderDate));
         }
 
-      
         [HttpPost]
-        public async Task<IActionResult> Checkout(CancellationToken cancellationToken)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Checkout(int movieTheaterId, List<int> seatIds, CancellationToken cancellationToken)
         {
-            var user = await _userManager.GetUserAsync(User);
-            var cart = await _cartRepository.GetOneAsync(c => c.ApplicationUserId == user!.Id, cancellationToken,
-                includes: c => c.Include(c => c.CartItems).ThenInclude(i => i.SelectedSeats));
+         
+            if (seatIds == null || !seatIds.Any())
+            {
+                TempData["Error"] = "Please select at least one seat.";
+                return RedirectToAction("SelectSeat", new { movieTheaterId });
+            }
 
-            if (cart == null || !cart.CartItems.Any()) return RedirectToAction("Index", "Cart");
+            var user = await _userManager.GetUserAsync(User);
 
            
+            var alreadyBooked = await _orderItemSeatRepository.GetAllAsync(
+                s => seatIds.Contains(s.SeatId) && s.OrderItem.MovieTheaterId == movieTheaterId,
+                cancellationToken);
+
+            if (alreadyBooked.Any())
+            {
+                TempData["Error"] = "Sorry, some of the selected seats were just booked by someone else.";
+                return RedirectToAction("SelectSeat", new { movieTheaterId });
+            }
+
+            
             var order = new Order
             {
-                ApplicationUserId = user.Id,
+                ApplicationUserId = user!.Id,
                 OrderDate = DateTime.UtcNow,
                 Status = OrderStatus.Confirmed 
             };
@@ -58,37 +75,37 @@ namespace CinemaApplication.Areas.Customer.Controllers
             await _orderRepository.CreateAsync(order, cancellationToken);
             await _orderRepository.SaveChangesAsync(cancellationToken);
 
-          
-            foreach (var item in cart.CartItems)
-            {
-                var orderItem = new OrderItem
-                {
-                    OrderId = order.Id,
-                    MovieTheaterId = item.MovieTheaterId,
-                    PricePerSeat = item.PricePerSeat,
-                    SeatsCount = item.SeatsCount,
-                    TotalPrice = item.PricePerSeat * item.SeatsCount
-                };
-                await _orderItemRepository.CreateAsync(orderItem, cancellationToken);
-                await _orderItemRepository.SaveChangesAsync(cancellationToken);
+            
+            var theater = await _movieTheaterRepository.GetOneAsync(mt => mt.Id == movieTheaterId, cancellationToken);
 
-             
-                foreach (var seat in item.SelectedSeats)
+            var orderItem = new OrderItem
+            {
+                OrderId = order.Id,
+                MovieTheaterId = movieTheaterId,
+                SeatsCount = seatIds.Count,
+                PricePerSeat = theater.Movie.Price, 
+                TotalPrice = theater.Movie.Price * seatIds.Count
+            };
+
+            await _orderItemRepository.CreateAsync(orderItem, cancellationToken);
+            await _orderItemRepository.SaveChangesAsync(cancellationToken);
+
+            
+            foreach (var seatId in seatIds)
+            {
+                await _orderItemSeatRepository.CreateAsync(new OrderItemSeat
                 {
-                    await _orderItemSeatRepository.CreateAsync(new OrderItemSeat
-                    {
-                        OrderItemId = orderItem.Id,
-                        SeatId = seat.SeatId
-                    }, cancellationToken);
-                }
+                    OrderItemId = orderItem.Id,
+                    SeatId = seatId
+                }, cancellationToken);
             }
 
-         
-            _cartRepository.Delete(cart);
-            await _orderRepository.SaveChangesAsync(cancellationToken);
+            await _orderItemSeatRepository.SaveChangesAsync(cancellationToken);
 
+            TempData["Success"] = "Booking completed successfully!";
             return RedirectToAction(nameof(Details), new { id = order.Id });
         }
+
 
         public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
         {
